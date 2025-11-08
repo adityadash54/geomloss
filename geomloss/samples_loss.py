@@ -4,6 +4,7 @@ from functools import partial
 import warnings
 
 from .kernel_samples import kernel_tensorized, kernel_online, kernel_multiscale
+from .distance_metrics import DISTANCE_METRICS
 
 from .sinkhorn_samples import sinkhorn_tensorized
 from .sinkhorn_samples import sinkhorn_online
@@ -42,6 +43,14 @@ routines = {
     },
 }
 
+# Add all distance metrics from distance_metrics module to routines
+for metric_name in DISTANCE_METRICS.keys():
+    routines[metric_name] = {
+        "tensorized": partial(kernel_tensorized, name=metric_name),
+        "online": partial(kernel_online, name=metric_name),
+        "multiscale": partial(kernel_multiscale, name=metric_name),
+    }
+
 
 class SamplesLoss(Module):
     """Creates a criterion that computes distances between sampled measures on a vector space.
@@ -66,6 +75,44 @@ class SamplesLoss(Module):
               - ``"laplacian"``: Laplacian MMD, computed using the kernel
                 :math:`k(x,y) = \exp \\big( -\|x-y\|_2 \,/\, \sigma)`
                 of standard deviation :math:`\sigma` = **blur**.
+              
+              Additionally, the following distance metrics are supported:
+              
+              **Lp (Minkowski) Family:**
+              ``"minkowski"``, ``"manhattan"``/``"cityblock"``/``"l1"``/``"taxicab"``, 
+              ``"euclidean"``/``"l2"``, ``"chebyshev"``/``"linf"``/``"supremum"``/``"max"``,
+              ``"weighted_minkowski"``, ``"weighted_cityblock"``, ``"weighted_euclidean"``, 
+              ``"weighted_chebyshev"``
+              
+              **L1 Family:**
+              ``"sorensen"``/``"dice"``/``"czekanowski"``, ``"gower"``, ``"soergel"``, 
+              ``"kulczynski_d1"``, ``"canberra"``, ``"lorentzian"``
+              
+              **Intersection Family:**
+              ``"intersection"``, ``"wave_hedges"``, ``"czekanowski_similarity"``, 
+              ``"motyka"``, ``"kulczynski_s1"``, ``"tanimoto"``/``"jaccard_distance"``, 
+              ``"ruzicka"``
+              
+              **Inner Product Family:**
+              ``"inner_product"``, ``"harmonic_mean"``, ``"cosine"``, 
+              ``"kumar_hassebrook"``/``"pce"``, ``"jaccard"``, ``"dice_coefficient"``
+              
+              **Squared-chord Family:**
+              ``"fidelity"``, ``"bhattacharyya"``, ``"hellinger"``/``"matusita"``, 
+              ``"squared_chord"``
+              
+              **Squared L2 (χ²) Family:**
+              ``"pearson_chi2"``, ``"neyman_chi2"``, ``"squared_l2"``/``"squared_euclidean"``, 
+              ``"probabilistic_symmetric_chi2"``, ``"divergence"``, ``"clark"``, 
+              ``"additive_symmetric_chi2"``
+              
+              **Shannon's Entropy Family:**
+              ``"kl"``/``"kullback_leibler"``, ``"jeffreys"``/``"j_divergence"``, 
+              ``"k_divergence"``, ``"topsoe"``, ``"js"``/``"jensen_shannon"``, 
+              ``"jensen_difference"``
+              
+              **Combination Family:**
+              ``"taneja"``, ``"kumar_johnson"``, ``"avg_l1_linf"``
 
         p (int, default=2): If **loss** is ``"sinkhorn"`` or ``"hausdorff"``,
             specifies the ground cost function between points.

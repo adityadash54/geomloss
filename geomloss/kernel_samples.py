@@ -38,6 +38,7 @@ except:
     keops_available = False
 
 from .utils import scal, squared_distances, distances
+from .distance_metrics import DISTANCE_METRICS, get_distance_metric
 
 
 class DoubleGrad(torch.autograd.Function):
@@ -82,11 +83,26 @@ def energy_kernel(x, y, blur=None, use_keops=False, ranges=None):
     return -distances(x, y, use_keops=use_keops)
 
 
+def distance_metric_kernel(x, y, metric_name, blur=0.05, use_keops=False, ranges=None, **kwargs):
+    """Generic kernel for distance metrics from distance_metrics module."""
+    metric_func = get_distance_metric(metric_name)
+    K = metric_func(x, y, blur=blur, use_keops=use_keops, ranges=ranges, **kwargs)
+    return K
+
+
 kernel_routines = {
     "gaussian": gaussian_kernel,
     "laplacian": laplacian_kernel,
     "energy": energy_kernel,
 }
+
+# Add all distance metrics from distance_metrics module to kernel_routines
+for metric_name in DISTANCE_METRICS.keys():
+    # Create a closure to capture metric_name properly
+    kernel_routines[metric_name] = (
+        lambda x, y, blur=0.05, use_keops=False, ranges=None, _name=metric_name, **kwargs:
+        distance_metric_kernel(x, y, _name, blur=blur, use_keops=use_keops, ranges=ranges, **kwargs)
+    )
 
 
 def kernel_loss(

@@ -56,8 +56,10 @@ def squared_distances(x, y, use_keops=False):
 
 def distances(x, y, use_keops=False):
     if use_keops:
-        return squared_distances(x, y, use_keops=use_keops).sqrt()
-
+        # For KeOps, use the more numerically stable approach
+        # Add small epsilon before sqrt to avoid NaN with LazyTensor
+        D_sq = squared_distances(x, y, use_keops=use_keops)
+        return (D_sq + 1e-8).sqrt()
     else:
         return torch.sqrt(torch.clamp_min(squared_distances(x, y), 1e-8))
 

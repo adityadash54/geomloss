@@ -362,6 +362,12 @@ def sinkhorn_online(
     potentials=False,
     **kwargs,
 ):
+    if not keops_available:
+        raise ImportError(
+            "The 'online' backend requires the pykeops library. "
+            "Please install it with: pip install pykeops"
+        )
+    
     B, N, D = x.shape
     B, M, _ = y.shape
 
