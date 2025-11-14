@@ -98,7 +98,8 @@ def distance_metric_kernel(x, y, metric_name, blur=0.05, use_keops=False, ranges
         # Distance metrics currently return K = -(D / blur) if blur is provided,
         # and S = -D if blur is None. Convert to exp(-D / blur^2):
         if (blur is not None) and (float(blur) > 0):
-            return (score / blur).exp()   # exp(-(D/blur)/blur) = exp(-D/blur^2)
+            return score.exp()   # exp(-(D/blur)) = Laplacian Kernel
+            #return (score / blur).exp()   # exp(-(D/blur)/blur) = exp(-D/blur^2)
         else:
             return score.exp()            # exp(-D)
 

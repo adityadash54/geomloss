@@ -836,10 +836,13 @@ SIMILARITY_METRICS = {
     "cosine", "cosine_similarity",
     "pearson", "pearson_correlation", "pearson_similarity",
     "inner_product", "inner_product_similarity",
-    "tanimoto_similarity", "dice_similarity",
+    "tanimoto","tanimoto_similarity",
+    "jaccard","jaccard_similarity",
+    "dice","dice_similarity","dice_coefficient",
     "czekanowski_similarity", "sokal_sneath_similarity",
     "kulczynski_similarity", "sorgenfrei_similarity",
     "russell_rao_similarity", "yule_similarity",
+    "kumar_hassebrook", "harmonic_mean"
 }
 
 def get_distance_metric(name):
