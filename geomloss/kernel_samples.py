@@ -21,6 +21,10 @@ where:
 
 import numpy as np
 import torch
+from .distance_metrics import SIMILARITY_METRICS
+
+def _is_similarity_metric(name: str) -> bool:
+    return name in SIMILARITY_METRICS
 
 try:  # Import the keops library, www.kernel-operations.io
     from pykeops.torch import generic_sum
@@ -86,9 +90,17 @@ def energy_kernel(x, y, blur=None, use_keops=False, ranges=None):
 def distance_metric_kernel(x, y, metric_name, blur=0.05, use_keops=False, ranges=None, **kwargs):
     """Generic kernel for distance metrics from distance_metrics module."""
     metric_func = get_distance_metric(metric_name)
-    K = metric_func(x, y, blur=blur, use_keops=use_keops, ranges=ranges, **kwargs)
-    return K
-
+    score = metric_func(x, y, blur=blur, use_keops=use_keops, ranges=ranges, **kwargs)
+    if _is_similarity_metric(metric_name):
+        # True similarities: use as-is
+        return score
+    else:
+        # Distance metrics currently return K = -(D / blur) if blur is provided,
+        # and S = -D if blur is None. Convert to exp(-D / blur^2):
+        if (blur is not None) and (float(blur) > 0):
+            return (score / blur).exp()   # exp(-(D/blur)/blur) = exp(-D/blur^2)
+        else:
+            return score.exp()            # exp(-D)
 
 kernel_routines = {
     "gaussian": gaussian_kernel,

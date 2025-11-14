@@ -5,6 +5,7 @@ Quick Reference: All Available Distance Metrics in GeomLoss
 This script prints a categorized list of all available distance metrics.
 """
 
+from geomloss import SamplesLoss
 from geomloss import DISTANCE_METRICS
 
 print("=" * 80)

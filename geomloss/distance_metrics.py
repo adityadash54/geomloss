@@ -829,6 +829,18 @@ DISTANCE_METRICS = {
     "avg_l1_linf": avg_l1_linf_distance,
 }
 
+SIMILARITY_METRICS = {
+    name for name in DISTANCE_METRICS.keys()
+    if name.endswith("_similarity")
+} | {
+    "cosine", "cosine_similarity",
+    "pearson", "pearson_correlation", "pearson_similarity",
+    "inner_product", "inner_product_similarity",
+    "tanimoto_similarity", "dice_similarity",
+    "czekanowski_similarity", "sokal_sneath_similarity",
+    "kulczynski_similarity", "sorgenfrei_similarity",
+    "russell_rao_similarity", "yule_similarity",
+}
 
 def get_distance_metric(name):
     """Retrieve a distance metric function by name.
